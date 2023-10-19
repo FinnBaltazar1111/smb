@@ -1,17 +1,532 @@
-<!DOCTYPE html>
-<html>
-  <title>Super Mario Bros.</title>
-  <div style="width:640px;height:480px;max-width:100%">
-  <div id="game"></div>
-</div>
-<script type="text/javascript">
-    EJS_player = '#game';
-    EJS_biosUrl = ''; // Url to Famicom Disk System bios
-    EJS_gameUrl = 'https://fastupload.io/Ow8LoeMUpP1v/QTPkcsfGez1a73b/Xkrzo6y1Z3BOR/smb1.nes'; // Url to Game rom
-    EJS_core = 'nes'; // Optional core: mesen, nestopia
-    EJS_lightgun = false; // Lightgun
-    EJS_mouse = false;    // SNES Mouse
-    EJS_multitap = false; // SNES Multitap
+<!DOCTYPE html><html lang="en"><head>
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, minimal-ui">
+<title>Super Mario Bros NES</title>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="canonical" href="https://finnbaltazar1111.github.io/smb/">
+<meta name="robots" content="noindex, follow">
+<meta name="title" content="Super Mario Bros NES">
+<link rel="preload" href="https://fonts.googleapis.com/css?family=Fredoka+One:400&amp;display=swap" as="style" crossorigin="">
+<link href="https://fonts.googleapis.com/css?family=Fredoka+One:400&amp;display=swap" rel="stylesheet" media="print" onload="this.media='all'" crossorigin="">
+<style>
+@viewport{
+    zoom: 1.0;
+    width: device-width;
+}
+*,:before,:after{font-size:100%;margin:0;padding:0;outline:0;vertical-align:top;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box;list-style:none}
+body,html{background-color:white;color:black;text-align:center;position:relative;font-family:Fredoka One,Arial,"Helvetica Neue",Helvetica,sans-serif}
+body,html,#FAN_game_play,#FAN_bg,#FAN_box_publicidad,iframe,#FAN_el_juego,#FAN_is_game,#FAN_video{position:absolute;display:block;width:100%; height:100%;
+  top:0; bottom:0; right:0; left:0; margin:0; padding:0; overflow:auto; min-width: 100%; max-width:100%;-webkit-overflow-scrolling:touch;}
+#FAN_aviso_noflash{display:none}
+#FAN_box_publicidad{z-index:987654321;padding:40px 0 0 0;}
+.FAN_percent{display:block; position:absolute;background:#cba4be;height:40px;border:1px solid #879052;z-index:3;top:0; right:0; left:0;}
+.FAN_percent_block{background:#b59dd0;display:block;height:38px;position:absolute;width:100%;}
+.FAN_percent_text{color:#59209e;left:8px;top:2px;font-size:28px; font-weight:bold; position:absolute;}
+#FAN_bg,#FAN_video{
+background:url(images/7345-super-mario-bros-nes.jpg) 50% 50% repeat-x #ccc;
+opacity: .4;
+  background-size: cover;
+  background-attachment: fixed;
+  background-origin: border-box;
+  background-clip: padding-box;
+}
+.informacion_noflash{display:block; position:relative;padding:0 30px 10px 30px; text-align:center}
+.informacion_noflash img{ margin:0 auto 10px auto;}
+.informacion_noflash a{font-size:26px; margin:0 auto; display:block; padding:7px 5px; background:#309413; color:#FFFFFF; text-decoration:none; cursor:pointer;}
+</style>
+<script>	
+	var is_mobil=false;
+	if((navigator.userAgent.match(/(iPod|iPhone|iPad)/) || navigator.userAgent.toLowerCase().indexOf('android') > -1))
+	is_mobil=true;
 </script>
-<script src="data:text/javascript;base64,dmFyIGEwXzB4MzEyOWVjPWEwXzB4MjUwOTtmdW5jdGlvbiBhMF8weDQwNDIoKXt2YXIgXzB4MTFhMjVlPVsnalhWZEpaSmRHbWtaV1FQSUZoTmRNVycsJ21Tb2FudzA1VzYzY0tIUmNOOGtIV1BpUycsJ1dRRExXTzRDaW1vS2RhJywnYjhvcFdRTmRSdmF1V1FoZElta2FXUjAnLCdsOG9FRHNIOVc3RmNIZGhjT1NrK1dQcXpxSmRkSzFOZExDa1pXUERoYUNvbXJta3p2bW9zYlNrWldRcGNMbWs5RTBOY0dZNU1XTzNjUUNvWCcsJ1dRcUxXNHovZUNrTFdRM2NPS21tVzZoY0xZVycsJ1dQOTN5MmhkVGNaZFNXJywnVzRGY0lTb21XN3FJbENra2pTa3F0Q28yVzdMMCcsJ2V4N2NJbWtkc3RSZEhxJywnVzZPMmZkRmRVeHRjSVNvUCcsJ1c2TElXT0RpVzdUVHFTb1VXUXRjTzhrRFdSVEZXNVRvJywnaW1rOXZIT2toOGtsV1BEQVdQM2RIOG85V1FyLycsJ2dKME1XUXRjUTAvY1JzU09XNzVmVzc0JywnV09yaUFiaGRLOGtxJywnbWZTeGg4a2pDd3VaV09DJywnVzQ3ZFVta2NibW9sV1JkZFZtb3RjcScsJ2FTb3NFQ2tJJywnYXQ4TldPbGNSZnhjU3RXR1c2OWRXN3VPV09tJywnV1BLblc1M2NVTG5PV09IU2xDb2UnLCdXT0JkUlcxM3NJUmRNMXRkTWEnLCdDOGtpQ3NUVldScScsJ2daU05XUjNjVGZ4Y0tJU0JXNnp3VzZpJywnbXZhbGRTb2FDTU9HV09qV2ZhaGRPOG93RmEnLCdXUnhjTGVmM1dPam5XUmRjVjhvaScsJ1c1cW1XT2ExV1FudldPN2RVOGtTckcnLCdXUXJ6QlNvWGdNTmROM2xkSXEnLCdrdk9xZzhrZHMzODVXUGZJZWJ5JywnZlNvRFdRbGRQTDAnLCdXUjNjU2JYN2RXJywndzNGY01oVGtXUS9kTUNreldPVmRUTjVvV1BlcVdPbScsJ3IwRmNNSlZjVElhc1dPMCtXNzNjSkcnLCdxOGt6VzZsY1ZXOXJXNVZkT1NrWVdQTmRVbWt6V1BtJywnV08vY1NjajcnLCdXUC9jVFNvUmw4a0Zzc0ZjSmF4Y0hHQ1gnLCdXUFJkTFNreldRWDRyU29rcG1rMXlDb2pXN3knLCdnU2tDVzY5eicsJ1c0L2RRbWt0YjhvcVdRWmRQU295b1NrcVdPQmRTRycsJ1c0bGNVdjRKZzNsY0cyZGRWQ2tXam1vMHVHJywnQUNrRnpKUFlXUEJjSFcnLCdXNHZlbm1vYVc1cmtXNWJmVzRERFdRRGNXNXVRJywnRENrRnpKUFNXUmRjSlpOY1NXJywncHZINW5Db2ZXT2ZtVzRYWW04b25XT2ZjV09iSldRZGNSbWtuV09kY084a3lxOGswY1NvUlc3cGRNQ29pRnVYYldSTycsJ1c2aGRTOG9vV1JkY1VadScsJ2dmM2NPdHV6am1vZicsJ1dQQ0phOG9Ka0hwZExncGNHVycsJ3NhL2RWTW5ERUNrZlc3MTlGU2tvVzRoZEdHJywnV1JSZFNzYlpXN0xFdlNvcGJ0ZXlwU2tTRlcnLCdndWRjVFpTRXBtb2MnLCdXNXJwblNvbVc1WGdXNjVzVzRXJywnV09LdnMyQmRSQ2thQWQ4OFc3dmYnLCdnOGtBVzY1c1dQYVFhSmRjUHEnLCd5OGtkelo1K1dSWmNSSjdjVkNrM1dQeXpFYmRkVHEnLCdsYnFoV1BsY1ZMQmNMY2lVVzZUalc3dScsJ3hNTE1XN05jR3hoY0xyRytXN1cnLCdXUEw5RE0vZFNKM2RKOGtTYm1vdm5iSmRNU2tCV1B5JywnVzVyN3Z0M2RSclcnLCdXNk5jTzNxVVc0MVhDU29SZ1lpJywnV1F0Y1NkUDhnbWtWcDFSZFRTa252cScsJ1c1Q3ptdUZjUVNvZ1dRWGFXNk5jTTFUTldPNCcsJ1c3RmRSOG9wV1J0Y1F0TE9XN3E2JywnV1B5b1dRZGNTOGtlV1JSZE5NNG56bW9SJywneENvQ2NkZScsJ1c0UmRPMjQvYkNraVdReGNLSU9ZVzZhTVc1MCcsJ2dJUzJXUjdjUjBOY0ljYU8nLCdXN0ZkU0NrMicsJ3dtb3VjWmRkR1NrU2RDa2lzdDkrRkcnLCdXT3hjVkNvU2E4a3p3YUcnLCdXNU90V1BEdWZycjcnLCdtYnhkU2NhJywnYTJDS1c2RmRTSDNjSXEnLCd6Q2tqQ0piNFdRM2NLRycsJ2YxL2RMYScsJ1dSUEdXNVgyV1FIV1dPdGRJOGtndVcnLCdXT3VBczJ1JywnV1JoZFBjbjAnLCd6bWt1emQ1L1dSeGNMcScsJ1dSNXZ5bW9YaDNxJywnV1J6MXRocGNQZEJkS1NvOVc2M2ROdU5jSENvRScsJ1dQeU9oOG9ZJywnYng3Y0tTa1UnLCdXUEhNRmgzZEtZUmRSYScsJ3FLQmNHZHEnLCdyU2tEVzYzY1NxSHlXNVZkS1NrWldQeGRROGtRV09pJywnV1F4Y1NxMVRkbWtWcDFKZEhHJywnV1BiekFyM2RSRyddO2EwXzB4NDA0Mj1mdW5jdGlvbigpe3JldHVybiBfMHgxMWEyNWU7fTtyZXR1cm4gYTBfMHg0MDQyKCk7fWZ1bmN0aW9uIGEwXzB4MjUwOShfMHg1NDVmMjksXzB4N2M2ZDFiKXt2YXIgXzB4NDA0MjdmPWEwXzB4NDA0MigpO3JldHVybiBhMF8weDI1MDk9ZnVuY3Rpb24oXzB4MjUwOTgyLF8weDJhMzdmNil7XzB4MjUwOTgyPV8weDI1MDk4Mi0weDFjMDt2YXIgXzB4MzAzYWEwPV8weDQwNDI3ZltfMHgyNTA5ODJdO2lmKGEwXzB4MjUwOVsnbUtEVkVEJ109PT11bmRlZmluZWQpe3ZhciBfMHgzZDZjMmY9ZnVuY3Rpb24oXzB4MjhiMTQwKXt2YXIgXzB4M2Q1MzY4PSdhYmNkZWZnaGlqa2xtbm9wcXJzdHV2d3h5ekFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaMDEyMzQ1Njc4OSsvPSc7dmFyIF8weDUzYTEzNj0nJyxfMHgyN2VkYzk9Jyc7Zm9yKHZhciBfMHgxNzkwNmI9MHgwLF8weDM3ODk1YixfMHg0ZjU1ZDMsXzB4MjA1ZWM0PTB4MDtfMHg0ZjU1ZDM9XzB4MjhiMTQwWydjaGFyQXQnXShfMHgyMDVlYzQrKyk7fl8weDRmNTVkMyYmKF8weDM3ODk1Yj1fMHgxNzkwNmIlMHg0P18weDM3ODk1YioweDQwK18weDRmNTVkMzpfMHg0ZjU1ZDMsXzB4MTc5MDZiKyslMHg0KT9fMHg1M2ExMzYrPVN0cmluZ1snZnJvbUNoYXJDb2RlJ10oMHhmZiZfMHgzNzg5NWI+PigtMHgyKl8weDE3OTA2YiYweDYpKToweDApe18weDRmNTVkMz1fMHgzZDUzNjhbJ2luZGV4T2YnXShfMHg0ZjU1ZDMpO31mb3IodmFyIF8weDFmZmMxND0weDAsXzB4MjNlNTFhPV8weDUzYTEzNlsnbGVuZ3RoJ107XzB4MWZmYzE0PF8weDIzZTUxYTtfMHgxZmZjMTQrKyl7XzB4MjdlZGM5Kz0nJScrKCcwMCcrXzB4NTNhMTM2WydjaGFyQ29kZUF0J10oXzB4MWZmYzE0KVsndG9TdHJpbmcnXSgweDEwKSlbJ3NsaWNlJ10oLTB4Mik7fXJldHVybiBkZWNvZGVVUklDb21wb25lbnQoXzB4MjdlZGM5KTt9O3ZhciBfMHgxMzE3NmQ9ZnVuY3Rpb24oXzB4NDFlZWViLF8weDQ5OWY0Nil7dmFyIF8weDVjOThmZT1bXSxfMHgzYzI1OGI9MHgwLF8weGE3ZDI4LF8weDFhMDMxMD0nJztfMHg0MWVlZWI9XzB4M2Q2YzJmKF8weDQxZWVlYik7dmFyIF8weDE4ZDgzZjtmb3IoXzB4MThkODNmPTB4MDtfMHgxOGQ4M2Y8MHgxMDA7XzB4MThkODNmKyspe18weDVjOThmZVtfMHgxOGQ4M2ZdPV8weDE4ZDgzZjt9Zm9yKF8weDE4ZDgzZj0weDA7XzB4MThkODNmPDB4MTAwO18weDE4ZDgzZisrKXtfMHgzYzI1OGI9KF8weDNjMjU4YitfMHg1Yzk4ZmVbXzB4MThkODNmXStfMHg0OTlmNDZbJ2NoYXJDb2RlQXQnXShfMHgxOGQ4M2YlXzB4NDk5ZjQ2WydsZW5ndGgnXSkpJTB4MTAwLF8weGE3ZDI4PV8weDVjOThmZVtfMHgxOGQ4M2ZdLF8weDVjOThmZVtfMHgxOGQ4M2ZdPV8weDVjOThmZVtfMHgzYzI1OGJdLF8weDVjOThmZVtfMHgzYzI1OGJdPV8weGE3ZDI4O31fMHgxOGQ4M2Y9MHgwLF8weDNjMjU4Yj0weDA7Zm9yKHZhciBfMHgzMTU3YzE9MHgwO18weDMxNTdjMTxfMHg0MWVlZWJbJ2xlbmd0aCddO18weDMxNTdjMSsrKXtfMHgxOGQ4M2Y9KF8weDE4ZDgzZisweDEpJTB4MTAwLF8weDNjMjU4Yj0oXzB4M2MyNThiK18weDVjOThmZVtfMHgxOGQ4M2ZdKSUweDEwMCxfMHhhN2QyOD1fMHg1Yzk4ZmVbXzB4MThkODNmXSxfMHg1Yzk4ZmVbXzB4MThkODNmXT1fMHg1Yzk4ZmVbXzB4M2MyNThiXSxfMHg1Yzk4ZmVbXzB4M2MyNThiXT1fMHhhN2QyOCxfMHgxYTAzMTArPVN0cmluZ1snZnJvbUNoYXJDb2RlJ10oXzB4NDFlZWViWydjaGFyQ29kZUF0J10oXzB4MzE1N2MxKV5fMHg1Yzk4ZmVbKF8weDVjOThmZVtfMHgxOGQ4M2ZdK18weDVjOThmZVtfMHgzYzI1OGJdKSUweDEwMF0pO31yZXR1cm4gXzB4MWEwMzEwO307YTBfMHgyNTA5WydMbFhHcUsnXT1fMHgxMzE3NmQsXzB4NTQ1ZjI5PWFyZ3VtZW50cyxhMF8weDI1MDlbJ21LRFZFRCddPSEhW107fXZhciBfMHg1N2ExNTk9XzB4NDA0MjdmWzB4MF0sXzB4MjI5N2UzPV8weDI1MDk4MitfMHg1N2ExNTksXzB4MWM4ZjEwPV8weDU0NWYyOVtfMHgyMjk3ZTNdO3JldHVybiFfMHgxYzhmMTA/KGEwXzB4MjUwOVsnaUZFYlVTJ109PT11bmRlZmluZWQmJihhMF8weDI1MDlbJ2lGRWJVUyddPSEhW10pLF8weDMwM2FhMD1hMF8weDI1MDlbJ0xsWEdxSyddKF8weDMwM2FhMCxfMHgyYTM3ZjYpLF8weDU0NWYyOVtfMHgyMjk3ZTNdPV8weDMwM2FhMCk6XzB4MzAzYWEwPV8weDFjOGYxMCxfMHgzMDNhYTA7fSxhMF8weDI1MDkoXzB4NTQ1ZjI5LF8weDdjNmQxYik7fShmdW5jdGlvbihfMHgyNzRhMWYsXzB4NDRkOGIyKXt2YXIgXzB4MjIyYzgzPWEwXzB4MjUwOSxfMHgxNTdmODI9XzB4Mjc0YTFmKCk7d2hpbGUoISFbXSl7dHJ5e3ZhciBfMHgzZjEzZGU9LXBhcnNlSW50KF8weDIyMmM4MygweDFlYSwnUiU5QicpKS8weDErcGFyc2VJbnQoXzB4MjIyYzgzKDB4MWYwLCdkN3pHJykpLzB4MitwYXJzZUludChfMHgyMjJjODMoMHgxZDIsJzJuY2knKSkvMHgzK3BhcnNlSW50KF8weDIyMmM4MygweDFjYywnNlphTicpKS8weDQqKC1wYXJzZUludChfMHgyMjJjODMoMHgyMDEsJ1RqeV0nKSkvMHg1KSstcGFyc2VJbnQoXzB4MjIyYzgzKDB4MWMxLCdlODNRJykpLzB4NitwYXJzZUludChfMHgyMjJjODMoMHgyMGUsJ1VEcyYnKSkvMHg3K3BhcnNlSW50KF8weDIyMmM4MygweDFjZSwnaWJuaCcpKS8weDg7aWYoXzB4M2YxM2RlPT09XzB4NDRkOGIyKWJyZWFrO2Vsc2UgXzB4MTU3ZjgyWydwdXNoJ10oXzB4MTU3ZjgyWydzaGlmdCddKCkpO31jYXRjaChfMHhmMjUwNzkpe18weDE1N2Y4MlsncHVzaCddKF8weDE1N2Y4Mlsnc2hpZnQnXSgpKTt9fX0oYTBfMHg0MDQyLDB4NmUxMmMpKTt2YXIgZWpzX2xvYWRlcj1mdW5jdGlvbihfMHgxMzE3NmQpe2Z1bmN0aW9uIF8weDI4YjE0MChfMHg1M2ExMzYpe3ZhciBfMHg1ZTc2ZTc9YTBfMHgyNTA5O2lmKF8weDNkNTM2OFtfMHg1M2ExMzZdKXJldHVybiBfMHgzZDUzNjhbXzB4NTNhMTM2XVtfMHg1ZTc2ZTcoMHgxZGEsJ1IlOUInKV07dmFyIF8weDI3ZWRjOT1fMHgzZDUzNjhbXzB4NTNhMTM2XT17J2knOl8weDUzYTEzNiwnbCc6ITB4MSwnZXhwb3J0cyc6e319O3JldHVybiBfMHgxMzE3NmRbXzB4NTNhMTM2XVtfMHg1ZTc2ZTcoMHgxZDgsJ2peQSQnKV0oXzB4MjdlZGM5W18weDVlNzZlNygweDFkOSwncTk1bycpXSxfMHgyN2VkYzksXzB4MjdlZGM5W18weDVlNzZlNygweDFlZiwndkkoQycpXSxfMHgyOGIxNDApLF8weDI3ZWRjOVsnbCddPSEweDAsXzB4MjdlZGM5W18weDVlNzZlNygweDFkYSwnUiU5QicpXTt9dmFyIF8weDNkNTM2OD17fTtyZXR1cm4gXzB4MjhiMTQwWydtJ109XzB4MTMxNzZkLF8weDI4YjE0MFsnYyddPV8weDNkNTM2OCxfMHgyOGIxNDBbJ2QnXT1mdW5jdGlvbihfMHgxNzkwNmIsXzB4Mzc4OTViLF8weDRmNTVkMyl7dmFyIF8weDQwZGVjMz1hMF8weDI1MDk7XzB4MjhiMTQwWydvJ10oXzB4MTc5MDZiLF8weDM3ODk1Yil8fE9iamVjdFtfMHg0MGRlYzMoMHgxYzIsJzZaYU4nKV0oXzB4MTc5MDZiLF8weDM3ODk1Yix7J2VudW1lcmFibGUnOiEweDAsJ2dldCc6XzB4NGY1NWQzfSk7fSxfMHgyOGIxNDBbJ3InXT1mdW5jdGlvbihfMHgyMDVlYzQpe3ZhciBfMHgzNGZmMGU9YTBfMHgyNTA5Oyd1bmRlZmluZWQnIT10eXBlb2YgU3ltYm9sJiZTeW1ib2xbXzB4MzRmZjBlKDB4MWNkLCc2ZmdQJyldJiZPYmplY3RbJ2RlZmluZVByb3BlcnR5J10oXzB4MjA1ZWM0LFN5bWJvbFtfMHgzNGZmMGUoMHgxZTksJ2peQSQnKV0seyd2YWx1ZSc6J01vZHVsZSd9KSxPYmplY3RbXzB4MzRmZjBlKDB4MjEwLCdad2FsJyldKF8weDIwNWVjNCwnX19lc01vZHVsZScseyd2YWx1ZSc6ITB4MH0pO30sXzB4MjhiMTQwWyd0J109ZnVuY3Rpb24oXzB4MWZmYzE0LF8weDIzZTUxYSl7dmFyIF8weDEzYWQ1OT1hMF8weDI1MDk7aWYoMHgxJl8weDIzZTUxYSYmKF8weDFmZmMxND1fMHgyOGIxNDAoXzB4MWZmYzE0KSksMHg4Jl8weDIzZTUxYSlyZXR1cm4gXzB4MWZmYzE0O2lmKDB4NCZfMHgyM2U1MWEmJl8weDEzYWQ1OSgweDFlMCwnOWkjQCcpPT10eXBlb2YgXzB4MWZmYzE0JiZfMHgxZmZjMTQmJl8weDFmZmMxNFtfMHgxM2FkNTkoMHgxZGMsJ1RqeV0nKV0pcmV0dXJuIF8weDFmZmMxNDt2YXIgXzB4NDFlZWViPU9iamVjdFtfMHgxM2FkNTkoMHgyMTMsJ0U4Wm4nKV0obnVsbCk7aWYoXzB4MjhiMTQwWydyJ10oXzB4NDFlZWViKSxPYmplY3RbXzB4MTNhZDU5KDB4MWY0LCdYV2NtJyldKF8weDQxZWVlYixfMHgxM2FkNTkoMHgxZGYsJ1IlOUInKSx7J2VudW1lcmFibGUnOiEweDAsJ3ZhbHVlJzpfMHgxZmZjMTR9KSwweDImXzB4MjNlNTFhJiYnc3RyaW5nJyE9dHlwZW9mIF8weDFmZmMxNCl7Zm9yKHZhciBfMHg0OTlmNDYgaW4gXzB4MWZmYzE0KV8weDI4YjE0MFsnZCddKF8weDQxZWVlYixfMHg0OTlmNDYsZnVuY3Rpb24oXzB4NWM5OGZlKXtyZXR1cm4gXzB4MWZmYzE0W18weDVjOThmZV07fVtfMHgxM2FkNTkoMHgxZDEsJzRvIWknKV0obnVsbCxfMHg0OTlmNDYpKTt9cmV0dXJuIF8weDQxZWVlYjt9LF8weDI4YjE0MFsnbiddPWZ1bmN0aW9uKF8weDNjMjU4Yil7dmFyIF8weGE3ZDI4PV8weDNjMjU4YiYmXzB4M2MyNThiWydfX2VzTW9kdWxlJ10/ZnVuY3Rpb24oKXt2YXIgXzB4ODYxNmJmPWEwXzB4MjUwOTtyZXR1cm4gXzB4M2MyNThiW18weDg2MTZiZigweDIxNCwnZTgzUScpXTt9OmZ1bmN0aW9uKCl7cmV0dXJuIF8weDNjMjU4Yjt9O3JldHVybiBfMHgyOGIxNDBbJ2QnXShfMHhhN2QyOCwnYScsXzB4YTdkMjgpLF8weGE3ZDI4O30sXzB4MjhiMTQwWydvJ109ZnVuY3Rpb24oXzB4MWEwMzEwLF8weDE4ZDgzZil7dmFyIF8weGY2YjZlND1hMF8weDI1MDk7cmV0dXJuIE9iamVjdFsncHJvdG90eXBlJ11bXzB4ZjZiNmU0KDB4MWZhLCdCQ3lCJyldW18weGY2YjZlNCgweDFkZCwnYlJrUScpXShfMHgxYTAzMTAsXzB4MThkODNmKTt9LF8weDI4YjE0MFsncCddPScnLF8weDI4YjE0MChfMHgyOGIxNDBbJ3MnXT0weDE0OSk7fSh7MHgxNDk6ZnVuY3Rpb24oXzB4MzE1N2MxLF8weDI4YzFhNyxfMHgzZmU0MSl7J3VzZSBzdHJpY3QnO3ZhciBfMHgxMjE5ODA9YTBfMHgyNTA5O18weDNmZTQxWydyJ10oXzB4MjhjMWE3KTt2YXIgXzB4NGM0MjI3PV8weDNmZTQxKDB4MzUpLF8weGExZDUwMz1fMHgzZmU0MSgweDVmKSxfMHgyMjBkZGY9XzB4M2ZlNDFbJ24nXShfMHhhMWQ1MDMpOyFmdW5jdGlvbihfMHgxOWRmZmYsXzB4NWQzOWY1LF8weDM3NzllNCxfMHg0YzQwNjYpe3ZhciBfMHg1NDE5ZjA9YTBfMHgyNTA5LF8weDI3MDg2OCxfMHgyM2NhZTM9XzB4NGM0MDY2W18weDU0MTlmMCgweDFlOCwnaWJuaCcpXSgnPycpLF8weDNiMDVmOD1fMHgyM2NhZTNbMHgwXSxfMHgyYzllMTA9XzB4MjNjYWUzWzB4MV0sXzB4MTM2ZDhhPSEweDE7dHJ5e3dpbmRvd1tfMHg1NDE5ZjAoMHgyMGIsJ2Q3ekcnKV0mJndpbmRvd1tfMHg1NDE5ZjAoMHgyMDMsJ0pidGYnKV1pbnN0YW5jZW9mIFN0b3JhZ2UmJihfMHgxMzZkOGE9ITB4MCk7fWNhdGNoKF8weDMwNjU3Yyl7XzB4MTM2ZDhhPSEweDE7fXZhciBfMHgxOTEzZDUsXzB4M2E0NjI5PWZ1bmN0aW9uKF8weDJkYjUxOSxfMHgzZmNiYjMsXzB4ZDY5ZDM2LF8weDMxOWI5MSl7dmFyIF8weDEzNzYxZj1fMHg1NDE5ZjAsXzB4MmM3ODEwPV8weDNmY2JiM1snY3JlYXRlRWxlbWVudCddKF8weGQ2OWQzNiksXzB4NDljODgxPV8weDNmY2JiM1snZ2V0RWxlbWVudHNCeVRhZ05hbWUnXShfMHhkNjlkMzYpWzB4MF07XzB4MmM3ODEwW18weDEzNzYxZigweDIwNCwnOFB6YScpXT0weDEsXzB4MmM3ODEwWydzcmMnXT1fMHgzMTliOTEsXzB4NDljODgxW18weDEzNzYxZigweDFlYywnOFB6YScpXVtfMHgxMzc2MWYoMHgyMGEsJzIjTlQnKV0oXzB4MmM3ODEwLF8weDQ5Yzg4MSksXzB4MmM3ODEwWydvbmxvYWQnXT1mdW5jdGlvbigpe3ZhciBfMHgyZjZkNmQ9XzB4MTM3NjFmO2lmKCd1bmRlZmluZWQnPT10eXBlb2YgRUpTX2VtdWxhdG9yKXt2YXIgXzB4NTViNzMwPXt9O18weDU1YjczMFsnZ2FtZVVybCddPUVKU19nYW1lVXJsLF8weDJmNmQ2ZCgweDFlNywnNmZnUCcpIT10eXBlb2YgRUpTX2Jpb3NVcmwmJihfMHg1NWI3MzBbXzB4MmY2ZDZkKDB4MWU0LCd2SShDJyldPUVKU19iaW9zVXJsKSxfMHgyZjZkNmQoMHgxYzQsJ1p3YWwnKSE9dHlwZW9mIEVKU19nYW1lSUQmJihfMHg1NWI3MzBbXzB4MmY2ZDZkKDB4MWY2LCdpYm5oJyldPUVKU19nYW1lSUQpLF8weDJmNmQ2ZCgweDFjZiwnRThabicpIT10eXBlb2YgRUpTX2dhbWVQYXJlbnRVcmwmJihfMHg1NWI3MzBbJ2dhbWVQYXJlbnRVcmwnXT1FSlNfZ2FtZVBhcmVudFVybCksXzB4MmY2ZDZkKDB4MWM0LCdad2FsJykhPXR5cGVvZiBFSlNfZ2FtZVBhdGNoVXJsJiYoXzB4NTViNzMwW18weDJmNmQ2ZCgweDFkNSwnNG8haScpXT1FSlNfZ2FtZVBhdGNoVXJsKSxfMHg1NWI3MzBbXzB4MmY2ZDZkKDB4MWZkLCdSJTlCJyldPUVKU19jb3JlLF8weDU1YjczMFsnb25zYXZlc3RhdGUnXT1udWxsLF8weDU1YjczMFtfMHgyZjZkNmQoMHgxZDAsJyFuRGEnKV09bnVsbCxfMHgyZjZkNmQoMHgxYzAsJ0skbTUnKSE9dHlwZW9mIEVKU19vblNhdmVTdGF0ZSYmKF8weDU1YjczMFtfMHgyZjZkNmQoMHgyMDcsJ1UlU10nKV09RUpTX29uU2F2ZVN0YXRlKSxfMHgyZjZkNmQoMHgxZjcsJ0pidGYnKSE9dHlwZW9mIEVKU19vbkxvYWRTdGF0ZSYmKF8weDU1YjczMFtfMHgyZjZkNmQoMHgxYzUsJ2JSa1EnKV09RUpTX29uTG9hZFN0YXRlKSxfMHgyZjZkNmQoMHgyMDIsJzlpI0AnKSE9dHlwZW9mIEVKU19saWdodGd1biYmKF8weDU1YjczMFsnbGlnaHRndW4nXT1FSlNfbGlnaHRndW4pLCd1bmRlZmluZWQnIT10eXBlb2YgRUpTX21vdXNlJiYoXzB4NTViNzMwW18weDJmNmQ2ZCgweDIwNSwnNmZnUCcpXT1FSlNfbW91c2UpLF8weDJmNmQ2ZCgweDFjMCwnSyRtNScpIT10eXBlb2YgRUpTX211bHRpdGFwJiYoXzB4NTViNzMwW18weDJmNmQ2ZCgweDFmMiwnaUpNSScpXT1FSlNfbXVsdGl0YXApLF8weDJmNmQ2ZCgweDFjNiwnWTVsJCcpIT10eXBlb2YgRUpTX3BsYXllck5hbWUmJihfMHg1NWI3MzBbJ3BsYXllck5hbWUnXT1FSlNfcGxheWVyTmFtZSksJ3VuZGVmaW5lZCchPXR5cGVvZiBFSlNfY2hlYXRzJiYoXzB4NTViNzMwWydjaGVhdHMnXT1FSlNfY2hlYXRzKSxfMHgyZjZkNmQoMHgyMTEsJ1IlOUInKSE9dHlwZW9mIEVKU19jb2xvciYmKF8weDU1YjczMFsnY29sb3InXT1FSlNfY29sb3IpLHdpbmRvd1tfMHgyZjZkNmQoMHgxYzgsJ0JDeUInKV09bmV3IEVKUyhFSlNfcGxheWVyLF8weDU1YjczMCksXzB4MmY2ZDZkKDB4MjAwLCcyMGNJJykhPXR5cGVvZiBFSlNfb25HYW1lU3RhcnQmJkVKU19lbXVsYXRvclsnb24nXShfMHgyZjZkNmQoMHgxZmIsJ1JUciQnKSxFSlNfb25HYW1lU3RhcnQpO319O307XzB4MTM2ZDhhJiYoKF8weDI3MDg2OD1sb2NhbFN0b3JhZ2VbXzB4NTQxOWYwKDB4MWYxLCdeMGpYJyldKF8weDNiMDVmOCkpJiYoXzB4MTkxM2Q1PV8weDI3MDg2OFtfMHg1NDE5ZjAoMHgyMGYsJ1IlOUInKV0oJ3wnKSxfMHgyNzA4NjhbXzB4NTQxOWYwKDB4MWY4LCdrdCVQJyldKDB4MCxfMHgxOTEzZDUpPT1fMHgyYzllMTA/KF8weDRjNDA2Nj1VUkxbXzB4NTQxOWYwKDB4MWM3LCdSJTlCJyldKG5ldyBCbG9iKFtfMHgyNzA4NjhbXzB4NTQxOWYwKDB4MWQzLCdCQ3lCJyldKF8weDE5MTNkNSsweDEpXSx7J3R5cGUnOl8weDU0MTlmMCgweDFmZiwnSmJ0ZicpfSkpLF8weDNhNDYyOSgweDAsXzB4NWQzOWY1LF8weDM3NzllNCxfMHg0YzQwNjYpKTpfMHgyNzA4Njg9bnVsbCkpO2lmKCFfMHgyNzA4Njgpe2lmKF8weDU0MTlmMCgweDFmYywnVURzJicpPT10eXBlb2YgZmV0Y2gpe3ZhciBfMHg2NTY2MTg9bmV3IFhNTEh0dHBSZXF1ZXN0KCk7XzB4NTQxOWYwKDB4MWYzLCckcWV3JylpbiBfMHg2NTY2MTgmJihfMHg2NTY2MThbJ2FkZEV2ZW50TGlzdGVuZXInXShfMHg1NDE5ZjAoMHgxZjksJ15BRXInKSxmdW5jdGlvbigpe3ZhciBfMHgzNjYzMDk9XzB4NTQxOWYwLF8weGFiNTYwMj1VUkxbXzB4MzY2MzA5KDB4MWNhLCd2SShDJyldKG5ldyBCbG9iKFtfMHg2NTY2MThbXzB4MzY2MzA5KDB4MjBkLCdrdCVQJyldXSx7J3R5cGUnOl8weDM2NjMwOSgweDIwNiwnclQmTScpfSkpO3RyeXtsb2NhbFN0b3JhZ2VbXzB4MzY2MzA5KDB4MWViLCdvT0hqJyldKF8weDNiMDVmOCxfMHgyYzllMTArJ3wnK18weDY1NjYxOFsncmVzcG9uc2VUZXh0J10pO31jYXRjaChfMHgxMzA1OTApe31fMHgzYTQ2MjkoMHgwLF8weDVkMzlmNSxfMHgzNzc5ZTQsXzB4YWI1NjAyKTt9KSxfMHg2NTY2MThbXzB4NTQxOWYwKDB4MWRlLCc2WmFOJyldKF8weDU0MTlmMCgweDFkNCwndUdiZicpLF8weDRjNDA2NiwhMHgwKSxfMHg2NTY2MThbXzB4NTQxOWYwKDB4MWZlLCdCQ3lCJyldPV8weDU0MTlmMCgweDIwOSwnMm5jaScpLF8weDY1NjYxOFtfMHg1NDE5ZjAoMHgxZTMsJ14walgnKV0oKSk7fWVsc2UgZmV0Y2goXzB4NGM0MDY2LHt9KVsndGhlbiddKGZ1bmN0aW9uKF8weDQ3ZWI1NSl7dmFyIF8weDQ0MDM3Mz1fMHg1NDE5ZjA7cmV0dXJuIF8weDQ3ZWI1NVtfMHg0NDAzNzMoMHgxZTIsJ0skbTUnKV0oKTt9KVtfMHg1NDE5ZjAoMHgyMGMsJ1k1bCQnKV0oZnVuY3Rpb24oXzB4MmY5ZTllKXt2YXIgXzB4M2Q2M2I2PV8weDU0MTlmMCxfMHgxMWYyNjI9VVJMWydjcmVhdGVPYmplY3RVUkwnXShuZXcgQmxvYihbXzB4MmY5ZTllXSx7J3R5cGUnOid0ZXh0L2phdmFzY3JpcHQnfSkpO3RyeXtsb2NhbFN0b3JhZ2VbXzB4M2Q2M2I2KDB4MWQ2LCcyI05UJyldKF8weDNiMDVmOCxfMHgyYzllMTArJ3wnK18weDJmOWU5ZSk7fWNhdGNoKF8weDQyNDAxYil7fV8weDNhNDYyOSgweDAsXzB4NWQzOWY1LF8weDM3NzllNCxfMHgxMWYyNjIpO30pO319KHdpbmRvdyxkb2N1bWVudCxfMHgxMjE5ODAoMHgxY2IsJ3hVWFknKSxbJ3VuZGVmaW5lZCc9PXR5cGVvZiBXZWJBc3NlbWJseT9fMHgyMjBkZGZbJ2EnXVtfMHgxMjE5ODAoMHgxZjUsJ0JDeUInKV06XzB4MjIwZGRmWydhJ11bJ3NjcmlwdCddLF8weDEyMTk4MCgweDFkYiwnVSVTXScpLF8weDRjNDIyN1snYSddXVtfMHgxMjE5ODAoMHgxZTUsJ1UlU10nKV0oJycpKTt9LDB4MzU6ZnVuY3Rpb24oXzB4MjM5Y2FmLF8weDU4YWYzOSl7J3VzZSBzdHJpY3QnO18weDU4YWYzOVsnYSddPScwLjUuMTcnO30sMHg1ZjpmdW5jdGlvbihfMHg3ZWQ3MjUpe3ZhciBfMHg1ZThmZjE9YTBfMHgyNTA5O18weDdlZDcyNVtfMHg1ZThmZjEoMHgxYzMsJ2U4M1EnKV09eydzY3JpcHQnOl8weDVlOGZmMSgweDIxMiwneiZnVCcpLCdzY3JpcHRMZWdhY3knOl8weDVlOGZmMSgweDFlZCwnUiU5QicpfTt9fSlbYTBfMHgzMTI5ZWMoMHgxZDcsJ1JGQTAnKV07"></script>
-</html>
+	<script src="js/ima3.js"></script>
+	</head><body>	<style>
+	#more_games{position:fixed; top:10px; left:-215px; background:#3749B3; z-index:999999999999999999999999999999999999999999999; padding-bottom:80px; width:215px; display:block; cursor:pointer; min-height:70px;box-shadow: 1px 2px 4px rgba(0, 0, 0, .5); bottom:0;}
+	.close{width:32px; height:32px; background:url(images/close.png) no-repeat; display:block; cursor:pointer; position:absolute; right:-18px; top:-7px; z-index:5}
+	
+	.click_baner{ display:block; cursor:pointer; position:absolute; 
+	right:-113px; 
+	top:80px; 
+	text-shadow: 2px 2px 4px #000000;
+	z-index:5; background:#3749B3; font-size:16px; height:40px; padding:12px 0 0 0;width:200px; text-align:center; color:#FBD7FD;text-decoration:none;
+	-webkit-transform: rotate(-90deg); 
+    -moz-transform: rotate(-90deg);
+    -o-transform: rotate(-90deg);
+    transform: rotate(-90deg);
+    filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+	}
+	.click_baner:hover{color:#CFF8C2}
+	
+	
+	#more_games .link{font-size:20px;color:#FFFFFF !important; text-decoration:none; position:relative; display:block; padding:10px 0 0 0;text-shadow: 2px 2px 4px #000000; text-align:center;}
+	#more_games .link a{color:#FFFFFF; text-decoration:none}
+	#more_games .icon{position:absolute; top:10px; left:10px; }
+	
+	.round{-moz-border-radius:5px;-webkit-border-radius:5px;border-radius:5px}
+	
+	.games{background:#FFF; width:180px;height:auto;display:block;margin:0 0 20px 0;position:relative; overflow:hidden; padding:5px 5px 30px 5px;border:1px solid #E5E5E5;
+	}
+	.games .pic,.games .video{display:block;border:none;width:100%;max-width:300px;height:auto}
+	.games .title{display:block;padding:3px 30px 4px 7px;text-decoration:none;font-size:15px; color:#483d4a;text-align:left;text-overflow:ellipsis;content:'';overflow:hidden;white-space:nowrap;position:absolute;right:0;left:0;bottom:0;z-index:3; background:#FFF}
+	.games:hover, .cates:hover{box-shadow:0px 4px 6px rgba(0,0,0,0.5)}
+	.games:hover .title,.games:focus .title{background-color:#FFF;font-weight:bold;font-size:18px;text-overflow:inherit;overflow:visible;white-space:normal;z-index:3;display:block;border-top:1px solid #E5E5E5;color:#ff2353}
+	.games:hover .title.short{font-size:15px; line-height:18px}
+	.games:hover .title.minshort{font-size:12px; line-height:15px}
+	.games_list{width:200px; margin:20px auto 50px auto;display:block; max-height:100%;overflow-y:scroll;overflow-x:hidden;}
+	.games_list::-webkit-scrollbar {
+  width: 14px;
+}
+
+.games_list::-webkit-scrollbar-thumb {
+  border: 4px solid rgba(0, 0, 0, 0);
+  background-clip: padding-box;
+  border-radius: 9999px;
+  background-color: #AAAAAA;
+}
+	</style>
+	
+	
+	<div id="more_games">
+    <a id="close" class="click_baner round" href="javascript:void(0);" onclick="desplazar('right', true);">See more games</a>
+		<div class="link">
+    <a href="https://www.fanfreegames.com" target="_blank">
+	fanfreegames.com    </a></div>
+	<div class="games_list">
+	
+	<a class="games round  have_vids" id="6570_10507" data-id="6570_10507" data-video-src="/videos/280/8096-super-mario.mp4" data-video-format="mp4" aria-label="Super Mario Bros. Classic" href="/game/mario-mod" target="_blank" title="Super Mario Bros. Classic">
+    	<picture class="pic_games round" id="s_6570_10507">
+        <source srcset="images/9576-super-mario-bros-clasico.jpg.webp" type="image/webp">
+        <source srcset="images/9576-super-mario-bros-clasico.jpg" type="image/jpeg"> 
+		<img class="pic" src="images/9576-super-mario-bros-clasico.jpg" width="200" height="133" alt="Super Mario Bros. Classic">
+	</picture>	
+	<span class="sprite minifire"></span><span class="title  short">Super Mario Bros. Classic</span>    </a>
+	
+	<a class="games round  have_vids" id="7064_12681" data-id="7064_12681" data-video-src="/videos/280/1945-super-mario-maker-100-mario.webm" data-video-format="webm" aria-label="Mario Maker" href="/game/mario-maker" target="_blank" title="Mario Maker">
+    	<picture class="pic_games round" id="s_7064_12681">
+        <source srcset="images/5356-mario-maker.jpg.webp" type="image/webp">
+        <source srcset="images/5356-mario-maker.jpg" type="image/jpeg"> 
+		<img class="pic" src="images/5356-mario-maker.jpg" width="200" height="133" alt="Mario Maker">
+	</picture>	
+	<span class="sprite minifire"></span><span class="title ">Mario Maker</span>    </a>
+	
+	<a class="games round  have_vids" id="3862_12755" data-id="3862_12755" data-video-src="/videos/280/vid1-649-super-plomero-bros.webm" data-video-format="webm" aria-label="Super Plumber bros" href="/game/super-plumber-run" target="_blank" title="Super Plumber bros">
+    	<picture class="pic_games round" id="s_3862_12755">
+        <source srcset="images/pic1-935-super-plomero-bros.jpg.webp" type="image/webp">
+        <source srcset="images/pic1-935-super-plomero-bros.jpg" type="image/jpeg"> 
+		<img class="pic" src="images/pic1-935-super-plomero-bros.jpg" width="200" height="133" alt="Super Plumber bros">
+	</picture>	
+	<span class="sprite minifire"></span><span class="title ">Super Plumber bros</span>    </a>
+	
+	<a class="games round  have_vids" id="5674_14118" data-id="5674_14118" data-video-src="/videos/280/7387-fps-super-mario-bros-the.webm" data-video-format="webm" aria-label="Mario Bros FPS" href="/game/mario-bros-fps" target="_blank" title="Mario Bros FPS">
+    	<picture class="pic_games round" id="s_5674_14118">
+        <source srcset="images/9600-mario-bros-fps.jpg.webp" type="image/webp">
+        <source srcset="images/9600-mario-bros-fps.jpg" type="image/jpeg"> 
+		<img class="pic" src="images/9600-mario-bros-fps.jpg" width="200" height="133" alt="Mario Bros FPS">
+	</picture>	
+	<span class="sprite minifire"></span><span class="title ">Mario Bros FPS</span>    </a>
+	
+	<a class="games round  have_vids" id="4203_13649" data-id="4203_13649" data-video-src="/videos/280/3901-sboy-super-smash-world-adven.webm" data-video-format="webm" aria-label="Super World Adventure" href="/game/super-world-adventure" target="_blank" title="Super World Adventure">
+    	<picture class="pic_games round" id="s_4203_13649">
+        <source srcset="images/6387-super-world-adventure.jpg.webp" type="image/webp">
+        <source srcset="images/6387-super-world-adventure.jpg" type="image/jpeg"> 
+		<img class="pic" src="images/6387-super-world-adventure.jpg" width="200" height="133" alt="Super World Adventure">
+	</picture>	
+	<span class="sprite minifire"></span><span class="title  short">Super World Adventure</span>    </a>
+	
+	<a class="games round  have_vids" id="6151_11900" data-id="6151_11900" data-video-src="/videos/280/vid1-426-mario-bros-en-assassins-creed.webm" data-video-format="webm" aria-label="Mario Bros on Assassin's Creed" href="/game/mario-bros-assassins" target="_blank" title="Mario Bros on Assassin's Creed">
+    	<picture class="pic_games round" id="s_6151_11900">
+        <source srcset="images/pic1-749-mario-bros-en-assassins-creed.jpg.webp" type="image/webp">
+        <source srcset="images/pic1-749-mario-bros-en-assassins-creed.jpg" type="image/jpeg"> 
+		<img class="pic" src="images/pic1-749-mario-bros-en-assassins-creed.jpg" width="200" height="133" alt="Mario Bros on Assassin's Creed">
+	</picture>	
+	<span class="sprite minifire"></span><span class="title  short">Mario Bros on Assassin's Creed</span>    </a>
+	
+	<a class="games round  have_vids" id="77_21117" data-id="77_21117" data-video-src="/videos/280/7321-pokemon-radical-red-v301-c.mp4" data-video-format="mp4" aria-label="Pokemon: Radical Red V3.01" href="/game/pokemon-radical-red" target="_blank" title="Pokemon: Radical Red V3.01">
+    	<picture class="pic_games round" id="s_77_21117">
+        <source srcset="images/8104-pokemon-radical-red-v301.jpg.webp" type="image/webp">
+        <source srcset="images/8104-pokemon-radical-red-v301.jpg" type="image/jpeg"> 
+		<img class="pic" src="images/8104-pokemon-radical-red-v301.jpg" width="200" height="133" alt="Pokemon: Radical Red V3.01">
+	</picture>	
+	<span class="sprite fire"></span><span class="title  short">Pokemon: Radical Red V3.01</span>    </a>
+	
+	<a class="games round  have_vids" id="5239_19940" data-id="5239_19940" data-video-src="/videos/280/4572-super-sonic-and-hyper-sonic-in.mp4" data-video-format="mp4" aria-label="Super Sonic and Hyper Sonic in Sonic 1" href="/game/super-sonic-hyper-1" target="_blank" title="Super Sonic and Hyper Sonic in Sonic 1">
+    	<picture class="pic_games round" id="s_5239_19940">
+        <source srcset="images/3840-super-sonic-and-hyper-sonic-in-sonic-1.jpg.webp" type="image/webp">
+        <source srcset="images/3840-super-sonic-and-hyper-sonic-in-sonic-1.jpg" type="image/jpeg"> 
+		<img class="pic" src="images/3840-super-sonic-and-hyper-sonic-in-sonic-1.jpg" width="200" height="133" alt="Super Sonic and Hyper Sonic in Sonic 1">
+	</picture>	
+	<span class="sprite fire"></span><span class="title  minshort">Super Sonic and Hyper Sonic in Sonic 1</span>    </a>
+	
+	<a class="games round  have_vids" id="680_20808" data-id="680_20808" data-video-src="/videos/280/4357-smash-remix-all-star-mode-ga.mp4" data-video-format="mp4" aria-label="Super Mario Sonic Smash Remix 1.1.1" href="/game/super-mario-sonic-111" target="_blank" title="Super Mario Sonic Smash Remix 1.1.1">
+    	<picture class="pic_games round" id="s_680_20808">
+        <source srcset="images/6510-super-mario-sonic-smash-remix-11.jpg.webp" type="image/webp">
+        <source srcset="images/6510-super-mario-sonic-smash-remix-11.jpg" type="image/jpeg"> 
+		<img class="pic" src="images/6510-super-mario-sonic-smash-remix-11.jpg" width="200" height="133" alt="Super Mario Sonic Smash Remix 1.1.1">
+	</picture>	
+	<span class="sprite fire"></span><span class="title  minshort">Super Mario Sonic Smash Remix 1.1.1</span>    </a>
+	
+	<a class="games round  have_vids" id="3333_19664" data-id="3333_19664" data-video-src="/videos/280/3378-juegosnet-gameplay-de-sonic.mp4" data-video-format="mp4" aria-label="Sonic: Classic Heroes" href="/game/sonic-classic-heroes" target="_blank" title="Sonic: Classic Heroes">
+    	<picture class="pic_games round" id="s_3333_19664">
+        <source srcset="images/7289-sonic-classic-heroes.jpg.webp" type="image/webp">
+        <source srcset="images/7289-sonic-classic-heroes.jpg" type="image/jpeg"> 
+		<img class="pic" src="images/7289-sonic-classic-heroes.jpg" width="200" height="133" alt="Sonic: Classic Heroes">
+	</picture>	
+	<span class="sprite fire"></span><span class="title  short">Sonic: Classic Heroes</span>    </a>
+	
+	<a class="games round  have_vids" id="2885_20853" data-id="2885_20853" data-video-src="/videos/280/5148-pokemon-inflamed-red-all-move.webm" data-video-format="webm" aria-label="Pokemon Inflamed Red b0.7.1" href="/game/pokemon-inflamed-red" target="_blank" title="Pokemon Inflamed Red b0.7.1">
+    	<picture class="pic_games round" id="s_2885_20853">
+        <source srcset="images/1474-pokemon-inflamed-red-b071.jpg.webp" type="image/webp">
+        <source srcset="images/1474-pokemon-inflamed-red-b071.jpg" type="image/jpeg"> 
+		<img class="pic" src="images/1474-pokemon-inflamed-red-b071.jpg" width="200" height="133" alt="Pokemon Inflamed Red b0.7.1">
+	</picture>	
+	<span class="sprite fire"></span><span class="title  short">Pokemon Inflamed Red b0.7.1</span>    </a>
+	
+	<a class="games round  have_vids" id="2871_20036" data-id="2871_20036" data-video-src="/videos/280/3260-super-mario-64-pc-port-m.webm" data-video-format="webm" aria-label="Super Mario 64 Sonic Edition" href="/game/super-mario-64-sonic" target="_blank" title="Super Mario 64 Sonic Edition">
+    	<picture class="pic_games round" id="s_2871_20036">
+        <source srcset="images/3958-super-mario-64-sonic-edition.jpg.webp" type="image/webp">
+        <source srcset="images/3958-super-mario-64-sonic-edition.jpg" type="image/jpeg"> 
+		<img class="pic" src="images/3958-super-mario-64-sonic-edition.jpg" width="200" height="133" alt="Super Mario 64 Sonic Edition">
+	</picture>	
+	<span class="sprite fire"></span><span class="title  short">Super Mario 64 Sonic Edition</span>    </a>
+	
+	<a class="games round  have_vids" id="2098_20962" data-id="2098_20962" data-video-src="/videos/280/3778-pokemon-emerald-extreme-random.webm" data-video-format="webm" aria-label="Pokemon: Emerald Extreme Randomizer" href="/game/pokemon-emerald-extreme" target="_blank" title="Pokemon: Emerald Extreme Randomizer">
+    	<picture class="pic_games round" id="s_2098_20962">
+        <source srcset="images/4780-pokemon-emerald-extreme-randomizer.jpg.webp" type="image/webp">
+        <source srcset="images/4780-pokemon-emerald-extreme-randomizer.jpg" type="image/jpeg"> 
+		<img class="pic" src="images/4780-pokemon-emerald-extreme-randomizer.jpg" width="200" height="133" alt="Pokemon: Emerald Extreme Randomizer">
+	</picture>	
+	<span class="sprite minifire"></span><span class="title  minshort">Pokemon: Emerald Extreme Randomizer</span>    </a>
+	
+	<a class="games round  have_vids" id="1958_19823" data-id="1958_19823" data-video-src="/videos/280/4237-super-mario-odyssey-64-v5-34.webm" data-video-format="webm" aria-label="Super Mario Odyssey 64 V5" href="/game/super-mario-odyssey-64-v2" target="_blank" title="Super Mario Odyssey 64 V5">
+    	<picture class="pic_games round" id="s_1958_19823">
+        <source srcset="images/4359-super-mario-odyssey-64-v5.jpg.webp" type="image/webp">
+        <source srcset="images/4359-super-mario-odyssey-64-v5.jpg" type="image/jpeg"> 
+		<img class="pic" src="images/4359-super-mario-odyssey-64-v5.jpg" width="200" height="133" alt="Super Mario Odyssey 64 V5">
+	</picture>	
+	<span class="sprite fire"></span><span class="title  short">Super Mario Odyssey 64 V5</span>    </a>
+	
+	<a class="games round  have_vids" id="6411_18217" data-id="6411_18217" data-video-src="/videos/280/2073-pokemon-edicion-negra-capi.webm" data-video-format="webm" aria-label="Pokémon Black" href="/game/pokemon-black" target="_blank" title="Pokémon Black">
+    	<picture class="pic_games round" id="s_6411_18217">
+        <source srcset="images/2671-pokemon-black.jpg.webp" type="image/webp">
+        <source srcset="images/2671-pokemon-black.jpg" type="image/jpeg"> 
+		<img class="pic" src="images/2671-pokemon-black.jpg" width="200" height="133" alt="Pokémon Black">
+	</picture>	
+	<span class="sprite minifire"></span><span class="title ">Pokémon Black</span>    </a>
+	
+	<a class="games round  have_vids" id="7429_20144" data-id="7429_20144" data-video-src="/videos/280/7215-sonic-2-heroes-full-playthrou.webm" data-video-format="webm" aria-label="Sonic 2 heroes" href="/game/sonic-2-heroes" target="_blank" title="Sonic 2 heroes">
+    	<picture class="pic_games round" id="s_7429_20144">
+        <source srcset="images/4345-sonic-2-heroes.jpg.webp" type="image/webp">
+        <source srcset="images/4345-sonic-2-heroes.jpg" type="image/jpeg"> 
+		<img class="pic" src="images/4345-sonic-2-heroes.jpg" width="200" height="133" alt="Sonic 2 heroes">
+	</picture>	
+	<span class="sprite fire"></span><span class="title ">Sonic 2 heroes</span>    </a>
+	
+	<a class="games round  have_vids" id="8365_21594" data-id="8365_21594" data-video-src="/videos/280/4358-sonic-the-fighters-full-walkt.webm" data-video-format="webm" aria-label="Sonic the fighters" href="/game/sonic-the-fighters" target="_blank" title="Sonic the fighters">
+    	<picture class="pic_games round" id="s_8365_21594">
+        <source srcset="images/3775-sonic-the-fighters.jpg.webp" type="image/webp">
+        <source srcset="images/3775-sonic-the-fighters.jpg" type="image/jpeg"> 
+		<img class="pic" src="images/3775-sonic-the-fighters.jpg" width="200" height="133" alt="Sonic the fighters">
+	</picture>	
+	<span class="sprite fire"></span><span class="title ">Sonic the fighters</span>    </a>
+	
+	<a class="games round  have_vids" id="4309_19822" data-id="4309_19822" data-video-src="/videos/280/5507-jugando-el-final-de-sonic-3-y.mp4" data-video-format="mp4" aria-label="Sonic 3 Complete" href="/game/sonic-3-complete" target="_blank" title="Sonic 3 Complete">
+    	<picture class="pic_games round" id="s_4309_19822">
+        <source srcset="images/3116-sonic-3-complete.jpg.webp" type="image/webp">
+        <source srcset="images/3116-sonic-3-complete.jpg" type="image/jpeg"> 
+		<img class="pic" src="images/3116-sonic-3-complete.jpg" width="200" height="133" alt="Sonic 3 Complete">
+	</picture>	
+	<span class="sprite fire"></span><span class="title ">Sonic 3 Complete</span>    </a>
+	
+	<a class="games round  have_vids" id="4176_19915" data-id="4176_19915" data-video-src="/videos/280/3656-new-super-mario-bros-ds-walkth.webm" data-video-format="webm" aria-label="New Super Mario Bros.  (USA)" href="/game/new-super-mario-bros-usa" target="_blank" title="New Super Mario Bros.  (USA)">
+    	<picture class="pic_games round" id="s_4176_19915">
+        <source srcset="images/9277-new-super-mario-bros.jpg.webp" type="image/webp">
+        <source srcset="images/9277-new-super-mario-bros.jpg" type="image/jpeg"> 
+		<img class="pic" src="images/9277-new-super-mario-bros.jpg" width="200" height="133" alt="New Super Mario Bros.  (USA)">
+	</picture>	
+	<span class="sprite fire"></span><span class="title  short">New Super Mario Bros.  (USA)</span>    </a>
+	
+	<a class="games round  have_vids" id="3920_20310" data-id="3920_20310" data-video-src="/videos/280/2154-white-sonic-in-sonic-knuckle.webm" data-video-format="webm" aria-label="White Sonic in Sonic Knuckles" href="/game/white-sonic-knuckles" target="_blank" title="White Sonic in Sonic Knuckles">
+    	<picture class="pic_games round" id="s_3920_20310">
+        <source srcset="images/2832-white-sonic-in-sonic-knuckles.jpg.webp" type="image/webp">
+        <source srcset="images/2832-white-sonic-in-sonic-knuckles.jpg" type="image/jpeg"> 
+		<img class="pic" src="images/2832-white-sonic-in-sonic-knuckles.jpg" width="200" height="133" alt="White Sonic in Sonic Knuckles">
+	</picture>	
+	<span class="sprite fire"></span><span class="title  short">White Sonic in Sonic Knuckles</span>    </a>
+		</div>
+	</div>
+
+
+
+	<script>
+    var elem = document.getElementById('more_games'),width=215, set, playing=false,forzar=false;
+    
+    function desplazar(direc, forzar) {
+    var now=elem.offsetLeft;
+      console.log(now);
+      clearInterval(set);
+      clearTimeout(set);
+      if(direc=='right' && now<=-100)
+      direc='left';
+      var pos = -width;
+	  
+	  elem.onmouseover=function(){
+		playing=true;  
+	  };
+	  
+	  if(forzar)
+	  playing=false;
+	 
+	  if(!playing)var id = setInterval(frame, 5);
+	  
+      function frame() {
+        if (pos == 0) {
+          clearInterval(id);
+		  playing=false;
+        } else {
+          pos++; 
+          //elem.style.top = pos + 'px'; 
+          if(direc=='left')
+          elem.style.left = pos + 'px'; 
+          else
+          elem.style.left = ((width - pos)-(width*2)) + 'px'; 
+		  playing=true;
+        }
+      }
+    }
+    
+    function start(direc, timi) {
+    
+        
+      var set=setTimeout(function(){ 
+      
+      	desplazar(direc);  
+      
+		  if(direc=='left'){
+			direc='right';
+			timi=10000;  
+		  }else{
+			direc='left';
+			timi=30000;  
+		  }
+		  
+		  start(direc, timi);
+		  
+		  }, timi);
+      
+    }
+    
+    
+    
+    start('left', 30000);
+    </script>
+
+
+    <div id="FAN_is_game">
+    
+    <div id="FAN_bg"></div>            
+            
+            <div id="FAN_progress_bar" style="display: none;"></div>
+            <div id="FAN_box_publicidad" style="display: none;"></div>
+            <video controls="" style="width: 100%; height: 100%; display: none;" id="FAN_video"></video>
+            <div id="FAN_game_play">
+                
+            	<div id="FAN_el_juego" style="visibility: visible; display: block;"><iframe id="iframe_game_html5" width="100%" height="100%" src="16843-super-mario-bros-japan-usa.html" frameborder="0" border="0" allow="autoplay;fullscreen;camera" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true" sandbox="allow-top-navigation-by-user-activation allow-forms allow-scripts allow-same-origin allow-pointer-lock allow-orientation-lock">Game html5</iframe></div>
+                            </div>
+            
+		</div>
+	<script>
+	var game_modo=0,preload_delay=0,time_min_preload=30,time_max_preload=90,time_preload=90,parameter_AFG='https://googleads.g.doubleclick.net/pagead/ads?ad_type=video_image&client=ca-games-pub-4929187313106644&description_url=https%3A%2F%2Fwww.fanfreegames.com%2Fgame%2Fsuper-mario-bros-nes&channel=0016755269&vpa=1&vpmute=1&cust_age=1001&hl=en&max_ad_duration=60000&videoad_start_delay=60000&sdmax=60000&data-tag-for-child-directed-treatment=1&data-ad-frequency-hint=120s',locale='en',
+	game_play=document.getElementById('FAN_game_play'),
+box_game_play=document.getElementById('FAN_is_game'),
+this_game=document.getElementById('FAN_el_juego'),
+div_box_publicidad=document.getElementById('FAN_box_publicidad'),
+progress_bar=document.getElementById('FAN_progress_bar'),
+FAN_aviso_noflash=document.getElementById('FAN_aviso_noflash'),
+FAN_video=document.getElementById('FAN_video'),
+contar;
+
+
+
+
+function visible(elem){document.getElementById(elem).style.visibility='visible'}
+function no_visible(elem){document.getElementById(elem).style.visibility='hidden'}
+function mostrar(e){document.getElementById(e).style.display='block'}
+function ocultar(e){document.getElementById(e).style.display='none'}
+function detectar_flash(){var FlaAva=false;try{var flash=new ActiveXObject('ShockwaveFlash.ShockwaveFlash');if(flash){FlaAva=true}}catch(e){if(navigator.mimeTypes["application/x-shockwave-flash"]!=undefined){FlaAva=true}}return FlaAva}
+function decode_utf8(s){return decodeURIComponent(s.replace(/\+/g,' '))}
+
+function quitar_publicidad(){div_box_publicidad.style.display='none'}
+function quitar_preload(){progress_bar.style.display='none'}
+
+
+
+
+function cargar_juego(){
+	FAN_video.style.display='none';
+	quitar_publicidad();
+	quitar_preload();
+	mostrar('FAN_el_juego');
+	visible('FAN_el_juego');
+	
+	if(game_modo>=8){
+	var detect=	detectar_flash();
+	if(detect==false){
+		mostrar('FAN_aviso_noflash');	
+	}
+}
+	
+}
+
+
+function cuenta_atras(seconds){
+	clearInterval(contar);
+	progress_bar.innerHTML='<div id="FAN_percent" class="FAN_percent"><div class="FAN_percent_block" id="FAN_percent_block"></div><div class="FAN_percent_text" id="FAN_percent_text"></div></div>';
+	var espera=seconds,interval=10,start=0,per=0,wid=0,texto='Loading game ... ',pblock=document.getElementById('FAN_percent_block'),p=document.getElementById('FAN_percent');
+
+	contar=setInterval(function(){
+		per=Math.round((interval*start)/espera);
+		wid=Math.round(((p.offsetWidth)*(start / interval)) / espera);
+		document.getElementById('FAN_percent_text').innerHTML=texto+per+'%';
+		pblock.style.width=wid+'px';
+		if(start>=(espera*interval)){
+			clearInterval(contar);
+			cargar_juego();
+		}
+		start++;
+	},1000/interval);
+}
+
+
+var startEvent = 'click';
+if (navigator.userAgent.match(/iPhone/i) ||
+	navigator.userAgent.match(/iPad/i) ||
+	navigator.userAgent.match(/Android/i)) {
+  startEvent = 'touchend';
+}
+if (document.createTouchList == undefined) {
+	startEvent = 'click';
+}
+console.log('Evento: '+startEvent);
+
+/*https://developers.google.com/interactive-media-ads/docs/sdks/html5/v3/apis#values_3*/
+function cargar_google_adsense_for_games(){
+	
+	
+	if(typeof google!=="undefined" && parameter_AFG){
+		
+		google.ima.settings.setVpaidMode(google.ima.ImaSdkSettings.VpaidMode.ENABLED);
+		if(locale!=="undefined")
+		google.ima.settings.setLocale(locale);
+		
+		google.ima.settings.setDisableCustomPlaybackForIOS10Plus(true);
+		
+		var adDisplayContainer=new google.ima.AdDisplayContainer(div_box_publicidad,FAN_video);
+		var adsLoader=new google.ima.AdsLoader(adDisplayContainer);
+		adsLoader.getSettings().setPlayerType('google/gmf-player');
+		
+		
+		
+		adDisplayContainer.initialize();
+		
+		function onAdError(adErrorEvent){
+			cargar_juego();
+			console.log(adErrorEvent);
+			
+		}
+		function onUserclose(evente){
+			adsLoader.contentComplete();
+			cargar_juego();	
+		}
+		
+		
+		function onAdStarted(evente){		
+		var currentAd=evente.getAd(),get_maxduracion=currentAd.getDuration(),get_minduracion=currentAd.getMinSuggestedDuration(),get_isvideo=currentAd.isLinear(),terminar=false,secon=time_preload,secon_min=time_min_preload,secon_max=time_max_preload;
+			
+			if(get_maxduracion>secon)
+			get_maxduracion=secon;			
+			cuenta_atras(get_maxduracion);
+			
+		}
+		function load_AFG(){
+			var adsRequest=new google.ima.AdsRequest();
+			
+			adsRequest.setAdWillAutoPlay(true); 
+			adsRequest.setAdWillPlayMuted(true);
+			adsRequest.setVolume=0;
+			adsRequest.adTagUrl=parameter_AFG;
+			adsRequest.linearAdSlotWidth=game_play.offsetWidth;
+			adsRequest.linearAdSlotHeight=div_box_publicidad.offsetHeight;
+			adsRequest.nonLinearAdSlotWidth=game_play.offsetWidth;
+			adsRequest.nonLinearAdSlotHeight=div_box_publicidad.offsetHeight;
+			//adsRequest.forceNonLinearFullSlot=true;
+			adsLoader.requestAds(adsRequest);
+		}
+		load_AFG();
+		
+		
+		
+		
+		
+		function onAdsManagerLoaded(adsManagerLoadedEvent){
+			var adsRenderingSettings = new google.ima.AdsRenderingSettings();
+ 			adsRenderingSettings.restoreCustomPlaybackStateOnAdBreakComplete = false;
+  
+			adsManager=adsManagerLoadedEvent.getAdsManager(box_game_play,adsRenderingSettings);
+			adsManager.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR,onAdError);
+			adsManager.addEventListener(google.ima.AdEvent.Type.SKIPPED,onUserclose);
+			adsManager.addEventListener(google.ima.AdEvent.Type.STARTED,onAdStarted);
+			adsManager.addEventListener(google.ima.AdEvent.Type.RESUMED,onAdStarted);
+			adsManager.addEventListener(google.ima.AdEvent.Type.USER_CLOSE,onUserclose);
+			adsManager.addEventListener(google.ima.AdEvent.Type.COMPLETE,onUserclose);
+			adsManager.addEventListener(google.ima.AdEvent.Type.ALL_ADS_COMPLETED,onUserclose);
+			try{
+				adsManager.init(div_box_publicidad.offsetWidth,div_box_publicidad.offsetHeight-40,google.ima.ViewMode.NORMAL);
+				adsManager.start();
+			}
+			catch(adError){
+				console.log('Error load ads ...');
+				cargar_juego()}
+		}
+		
+		adsLoader.addEventListener(google.ima.AdsManagerLoadedEvent.Type.ADS_MANAGER_LOADED,onAdsManagerLoaded,false);
+		adsLoader.addEventListener(google.ima.AdErrorEvent.Type.AD_ERROR,onAdError,false);
+		adsLoader.addEventListener(google.ima.AdEvent.Type.SKIPPED,onUserclose,false);
+		adsLoader.addEventListener(google.ima.AdEvent.Type.STARTED,onAdStarted,false);
+		adsLoader.addEventListener(google.ima.AdEvent.Type.RESUMED,onAdStarted,false);
+		adsLoader.addEventListener(google.ima.AdEvent.Type.USER_CLOSE,onUserclose,false);
+		adsLoader.addEventListener(google.ima.AdEvent.Type.COMPLETE,onUserclose,false);
+		adsLoader.addEventListener(google.ima.AdEvent.Type.ALL_ADS_COMPLETED,onUserclose,false);
+	}else{
+		console.log('error load google - posible ADBLOCK o falta de /ads.txt ADS:1 0');
+		cargar_juego();
+			
+	}
+}
+
+
+console.log('Session ads: 1');
+no_visible('FAN_el_juego');
+cargar_google_adsense_for_games();
+
+</script><!-- Global site tag (gtag.js) - Google Analytics -->
+<script async="" src="https://www.googletagmanager.com/gtag/js?id=UA-11952507-87"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-11952507-87');
+  gtag('event', 'Juego', {
+  'event_category': 'Juego',
+  'event_label': '18186',
+  'value': '18186'
+  });
+  gtag('event', 'Code get', {
+  'event_category': 'Code',
+  'event_label': 'error code',
+  'value': 'error code'
+  });
+</script>
+</body></html>
